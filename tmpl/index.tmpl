@@ -1,0 +1,50 @@
+    {{ define "Index" }}
+       {{ template "Header" }}
+          {{ template "Menu" }}
+    <h2>Usuários cadastrados</h2>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nome</td>
+                <td>Email</td>
+                <td>Ação</td>
+            </tr>
+        </thead>
+
+        <tbody>
+            {{range .}}
+            <tr key="index">
+                <td>{{.Id}}</td>
+                <td>{{.Name}}</td>
+                <td>{{.Email}}</td>
+                <td> <a href="/show?id={{.Id}}">Vizualizar</a> | <a href="/edit?id={{.Id}}">Editar</a> </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    <br/>
+
+
+    </form>
+
+
+<form action="/coding.txt" method="post">
+
+  <button href="/csv" type="submit" formenctype="text/plain" download>Submit without character encoding</button>
+</form>
+
+     <a  href="/csv"  download=go.csv>DOWNLOAD CSV</a></br>
+
+    <a href="/count"  download=go.csv>DOWNLOAD CSV</a>
+
+    <form enctype="multipart/form-data" action="/upload" method="post">
+    	<input type="file" name="uploadFile" />
+    	<input type="submit" value="upload" />
+    </form>
+
+</form>
+
+ {{template "Footer"}}
+ {{ end }}
