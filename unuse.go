@@ -358,20 +358,6 @@ func GetNames(c *gin.Context) {
 
 //-----------------------------------------------
 
-db := dbConn()
 
-rows, err := db.Query("SELECT COUNT(*)FROM test.names")
-if err != nil {
-	panic(err.Error())
-}
-
-m := Count{}
-res := []Count{}
-
-res = append(res, m)
-tmpl.ExecuteTemplate(w, "Index", res)
-
-
-}
 
 */

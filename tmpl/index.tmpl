@@ -1,7 +1,10 @@
     {{ define "Index" }}
        {{ template "Header" }}
           {{ template "Menu" }}
-    <h2>Usuários cadastrados</h2>
+    <h2>Usuários cadastrados
+
+
+
 
     <table border="1">
         <thead>
@@ -26,25 +29,8 @@
     </table>
     <br/>
 
-
-    </form>
-
-
-<form action="/coding.txt" method="post">
-
-  <button href="/csv" type="submit" formenctype="text/plain" download>Submit without character encoding</button>
-</form>
-
-     <a  href="/csv"  download=go.csv>DOWNLOAD CSV</a></br>
-
-    <a href="/count"  download=go.csv>DOWNLOAD CSV</a>
-
-    <form enctype="multipart/form-data" action="/upload" method="post">
-    	<input type="file" name="uploadFile" />
-    	<input type="submit" value="upload" />
-    </form>
-
-</form>
+    <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>
+    <a href="/lines"  download=lines.csv> DOWNLOAD CSV </a>
 
  {{template "Footer"}}
  {{ end }}

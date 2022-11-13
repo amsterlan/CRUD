@@ -1,8 +1,9 @@
 package main
 
 import (
+	csvmanager "CRUD/csv"
 	"database/sql"
-	"encoding/json"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
@@ -195,7 +196,8 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", 301)
 }
 
-func Newcsv(w http.ResponseWriter, r *http.Request) {
+func DownCsv(w http.ResponseWriter, r *http.Request) {
+
 	db := dbConn()
 	selDB, err := db.Query("SELECT *  FROM names ")
 	if err != nil {
@@ -218,60 +220,68 @@ func Newcsv(w http.ResponseWriter, r *http.Request) {
 		n.Name = name
 		n.Email = email
 
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(n); err != nil {
-			panic(err)
-			res = append(res, n)
+		res = append(res, n)
+
+		u := fmt.Sprintf("%#v,%#v,%#v", id, name, email)
+
+		list := [][]string{
+			{u},
 		}
 
-		defer db.Close()
+		byteData, err := csvmanager.WriteAll(list)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+		w.Write([]byte(byteData))
 	}
 }
 
-type Funcionary struct {
-	Number int
+type Regs struct {
+	Id int `json:"p" form:"p"`
 }
 
-func Count(w http.ResponseWriter, r *http.Request) {
+func Registers(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
 
-	if r.Method == "GET" {
+	regs := Regs{}
+	reg := []Regs{}
 
-		db.QueryRow("SELECT COUNT(*)FROM test.names")
-		dbdata := Funcionary{}
-		list := []Funcionary{}
+	rows, err := db.Query("SELECT COUNT(*)FROM test.names")
+	if err != nil {
+		panic(err.Error())
+	}
 
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(dbdata); err != nil {
-			panic(err)
+	var lines int
+	defer rows.Close()
 
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&lines); err != nil {
+			log.Fatal(err)
+			fmt.Printf("%s", lines)
+
+			regs.Id = id
+
+			reg = append(reg, regs)
 		}
-		list = append(list, dbdata)
+		fmt.Println(lines)
+		tmpl.ExecuteTemplate(w, "Count", lines)
 	}
 }
 
-//-----------------------------------------
-
 func main() {
-	log.Println("Server started on: http://localhost:9000")
-
+	http.HandleFunc(`/lines`, Registers)
+	http.HandleFunc(`/csv`, DownCsv)
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/show", Show)
 	http.HandleFunc("/new", New)
 	http.HandleFunc("/edit", Edit)
-
 	http.HandleFunc("/insert", Insert)
 	http.HandleFunc("/update", Update)
 	http.HandleFunc("/delete", Delete)
-	http.HandleFunc("/count", Count)
-	http.HandleFunc("/csv", Newcsv)
-
-	//fs := http.FileServer(http.Dir(uploadPath))
-	//http.Handle("/files/", http.StripPrefix("/files", fs))
-
-	//log.Print("Server started on localhost:8080, use /upload for uploading files and /files/{fileName} for downloading")
 
 	http.ListenAndServe(":9000", nil)
-
+	log.Println("Server started on: http://localhost:9000")
 }
