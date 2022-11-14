@@ -29,7 +29,7 @@ func dbConn() (db *sql.DB) {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
-	selDB, err := db.Query("SELECT *  FROM names ")
+	selDB, err := db.Query("SELECT *  FROM funcionarios ")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -63,7 +63,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	selDB, err := db.Query("SELECT id, name, email FROM names WHERE id=?;", nId)
+	selDB, err := db.Query("SELECT id, name, email FROM funcionarios WHERE id=?;", nId)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -99,7 +99,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	selDB, err := db.Query("SELECT * FROM names WHERE id=?", nId)
+	selDB, err := db.Query("SELECT * FROM funcionarios WHERE id=?", nId)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -136,7 +136,7 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		email := r.FormValue("email")
 
-		insForm, err := db.Prepare("INSERT INTO names(name, email) VALUES(?,?)")
+		insForm, err := db.Prepare("INSERT INTO funcionarios (name, email) VALUES(?,?)")
 		if err != nil {
 			panic(err.Error())
 		}
@@ -161,7 +161,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		id := r.FormValue("uid")
 
-		insForm, err := db.Prepare("UPDATE names SET name=?, email=? WHERE id=?")
+		insForm, err := db.Prepare("UPDATE funcionarios SET name=?, email=? WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
@@ -182,7 +182,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	delForm, err := db.Prepare("DELETE FROM names WHERE id=?")
+	delForm, err := db.Prepare("DELETE FROM funcionarios WHERE id=?")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -199,7 +199,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 func DownCsv(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
-	selDB, err := db.Query("SELECT *  FROM names ")
+	selDB, err := db.Query("SELECT *  FROM funcionarios ")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -248,7 +248,7 @@ func Registers(w http.ResponseWriter, r *http.Request) {
 	regs := Regs{}
 	reg := []Regs{}
 
-	rows, err := db.Query("SELECT COUNT(*)FROM test.names")
+	rows, err := db.Query("SELECT COUNT(*)FROM funcionarios")
 	if err != nil {
 		panic(err.Error())
 	}
