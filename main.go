@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 )
 
@@ -196,45 +197,49 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", 301)
 }
 
+type Data struct {
+	Id    int    //`json:"id" form:"id"`
+	Name  string //`json:"name" form:"name"`
+	Email string //`json:"email" form:"email"`
+}
+
 func DownCsv(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
-	selDB, err := db.Query("SELECT *  FROM funcionarios ")
+	resultado, err := db.Query("SELECT *  FROM funcionarios ")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	n := Names{}
-	res := []Names{}
+	list := [][]string{}
 
-	for selDB.Next() {
+	for resultado.Next() {
 		var id int
 		var name, email string
 
-		err = selDB.Scan(&id, &name, &email)
+		err = resultado.Scan(&id, &name, &email)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.Id = id
-		n.Name = name
-		n.Email = email
+		funcionario := []string{strconv.Itoa(id), name, email}
 
-		res = append(res, n)
-
-		u := fmt.Sprintf("%#v,%#v,%#v", id, name, email)
-
-		list := [][]string{
-			{u},
-		}
-
-		byteData, err := csvmanager.WriteAll(list)
-
-		if err != nil {
-			log.Fatalln(err)
-		}
-		w.Write([]byte(byteData))
+		list = append(list, funcionario)
+		//format := fmt.Sprintf("%v", emptySlicen)
+		//list = [][]string{{format}}
 	}
+	//for _, value := range emptySlicen {
+	//format := fmt.Sprintf("%#v\n", value)
+	//list = [][]string{{format}}
+	//	}
+
+	byteData, err := csvmanager.WriteAll(list)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	w.Write([]byte(byteData))
+
 }
 
 type Regs struct {
@@ -272,6 +277,7 @@ func Registers(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
 	http.HandleFunc(`/lines`, Registers)
 	http.HandleFunc(`/csv`, DownCsv)
 	http.HandleFunc("/", Index)

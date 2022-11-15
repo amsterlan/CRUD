@@ -1,10 +1,9 @@
     {{ define "Index" }}
        {{ template "Header" }}
           {{ template "Menu" }}
-    <h2>Usuários cadastrados
 
 
-
+    <h2>Usuários cadastrados ()</h2>
 
     <table border="1">
         <thead>
@@ -17,7 +16,7 @@
         </thead>
 
         <tbody>
-            {{range .}}
+            {{range .}} for
             <tr key="index">
                 <td>{{.Id}}</td>
                 <td>{{.Name}}</td>
