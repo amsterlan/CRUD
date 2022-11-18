@@ -23,52 +23,48 @@ func dbConn() (db *sql.DB) {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	n := Funcionario{}
-	SlcFuncionario := []Funcionario{}
-	IndxPg := IndexPage{}
+	sliceFuncionary := []Funcionary{}
+	sliceIndexPg := []IndexPage{}
 
 	db := dbConn()
-	resultado, err := db.Query("SELECT *  FROM funcionarios ")
+	result, err := db.Query("SELECT *  FROM funcionarios ")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	for resultado.Next() {
+	for result.Next() {
 		var id int
 		var name, email string
-		var salario float64
+		var salary float64
 
-		err = resultado.Scan(&id, &name, &email, &salario)
+		err = result.Scan(&id, &name, &email, &salary)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.id = id
-		n.name = name
-		n.email = email
-		n.salario = salario
-
-		SlcFuncionario = append(SlcFuncionario, n)
+		listFuncionary := Funcionary{id, name, email, salary}
+		sliceFuncionary = append(sliceFuncionary, listFuncionary)
 
 	}
 
-	count := len(SlcFuncionario)
-	IndxPg.funcionarios = SlcFuncionario
-	IndxPg.count = count
-	tmpl.ExecuteTemplate(w, "Index", IndxPg)
-	defer db.Close()
+	count := len(sliceFuncionary)
+	listIndexPg := IndexPage{count, sliceFuncionary}
+	sliceIndexPg = append(sliceIndexPg, listIndexPg)
+	tmpl.ExecuteTemplate(w, "Index", listIndexPg)
+
+	defer result.Close()
 }
 
-type Funcionario struct {
-	id      int
-	name    string
-	email   string
-	salario float64
+type Funcionary struct {
+	id     int
+	name   string
+	email  string
+	salary float64
 }
 
 type IndexPage struct {
-	count        int
-	funcionarios []Funcionario
+	count      int
+	funcionary []Funcionary
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
@@ -76,30 +72,30 @@ func Show(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	selDB, err := db.Query("SELECT id, name, email, salario FROM funcionarios WHERE id=?;", nId)
+	result, err := db.Query("SELECT id, name, email, salary FROM funcionarios WHERE id=?;", nId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	n := Funcionario{}
+	listFuncionary := Funcionary{}
 
-	for selDB.Next() {
+	for result.Next() {
 		var id int
 		var name, email string
-		var salario float64
+		var salary float64
 
-		err = selDB.Scan(&id, &name, &email, &salario)
+		err = result.Scan(&id, &name, &email, &salary)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.id = id
-		n.name = name
-		n.email = email
-		n.salario = salario
+		listFuncionary.id = id
+		listFuncionary.name = name
+		listFuncionary.email = email
+		listFuncionary.salary = salary
 	}
 
-	tmpl.ExecuteTemplate(w, "Show", n)
+	tmpl.ExecuteTemplate(w, "Show", listFuncionary)
 
 	defer db.Close()
 
@@ -114,31 +110,31 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	selDB, err := db.Query("SELECT * FROM funcionarios WHERE id=?", nId)
+	result, err := db.Query("SELECT * FROM funcionarios WHERE id=?", nId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	n := Funcionario{}
+	listFuncionary := Funcionary{}
 
-	for selDB.Next() {
+	for result.Next() {
 		var id int
 		var name, email string
-		var salario float64
+		var salary float64
 
 		// Faz o Scan do SELECT
-		err = selDB.Scan(&id, &name, &email, &salario)
+		err = result.Scan(&id, &name, &email, &salary)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.id = id
-		n.name = name
-		n.email = email
-		n.salario = salario
+		listFuncionary.id = id
+		listFuncionary.name = name
+		listFuncionary.email = email
+		listFuncionary.salary = salary
 	}
 
-	tmpl.ExecuteTemplate(w, "Edit", n)
+	tmpl.ExecuteTemplate(w, "Edit", listFuncionary)
 
 	// Fecha a conexão com o banco de dados
 	defer db.Close()
@@ -152,16 +148,16 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 
 		name := r.FormValue("name")
 		email := r.FormValue("email")
-		salario := r.FormValue("salario")
+		salary := r.FormValue("salary")
 
-		insForm, err := db.Prepare("INSERT INTO funcionarios (name, email, salario) VALUES(?,?,?)")
+		insForm, err := db.Prepare("INSERT INTO funcionarios (name, email, salary) VALUES(?,?,?)")
 		if err != nil {
 			panic(err.Error())
 		}
 
-		insForm.Exec(name, email, salario)
+		insForm.Exec(name, email, salary)
 
-		log.Println("INSERT: Name: " + name + " | E-mail: " + email + "| Salario: " + salario)
+		log.Println("INSERT: Name: " + name + " | E-mail: " + email + "| Salary: " + salary)
 	}
 
 	defer db.Close()
@@ -178,16 +174,16 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		email := r.FormValue("email")
 		id := r.FormValue("uid")
-		salario := r.FormValue("salario")
+		salary := r.FormValue("salary")
 
-		insForm, err := db.Prepare("UPDATE funcionarios SET name=?, email=?, salario=?, WHERE id=?")
+		insForm, err := db.Prepare("UPDATE funcionarios SET name=?, email=?, salary=?, WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
 
-		insForm.Exec(name, email, id, salario)
+		insForm.Exec(name, email, id, salary)
 
-		log.Println("UPDATE: Name: " + name + " |E-mail: " + email + "|Salario:" + salario)
+		log.Println("UPDATE: Name: " + name + " |E-mail: " + email + "|Salario:" + salary)
 	}
 
 	defer db.Close()
@@ -233,16 +229,16 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 	for resultado.Next() {
 		var id int
 		var name, email string
-		var salario float64
+		var salary float64
 
-		err = resultado.Scan(&id, &name, &email, &salario)
+		err = resultado.Scan(&id, &name, &email, &salary)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		funcionario := []string{strconv.Itoa(id), name, email, strconv.FormatFloat(salario, 'f', 2, 64)}
+		funcionary := []string{strconv.Itoa(id), name, email, strconv.FormatFloat(salary, 'f', 2, 64)}
 
-		list = append(list, funcionario)
+		list = append(list, funcionary)
 	}
 
 	byteData, err := csvmanager.WriteAll(list)
