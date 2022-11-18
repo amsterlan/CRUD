@@ -2,9 +2,10 @@
        {{ template "Header" }}
           {{ template "Menu" }}
 
+<h2>Usuários cadastrados </h2>
 
-    <h2>Usuários cadastrados ()</h2>
 
+<div>
     <table border="1">
         <thead>
             <tr>
@@ -16,16 +17,19 @@
         </thead>
 
         <tbody>
-            {{range .}} for
+            {{range .IndexPage}}
             <tr key="index">
-                <td>{{.Id}}</td>
-                <td>{{.Name}}</td>
-                <td>{{.Email}}</td>
+                <td>{{.funcionarios.id}}</td>
+                <td>{{.funcionarios.name}}</td>
+                <td>{{.funcionarios.email}}</td>
+
+
                 <td> <a href="/show?id={{.Id}}">Vizualizar</a> | <a href="/edit?id={{.Id}}">Editar</a> </td>
             </tr>
             {{ end }}
         </tbody>
     </table>
+    </div>
     <br/>
 
     <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>

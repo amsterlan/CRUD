@@ -3,7 +3,6 @@ package main
 import (
 	csvmanager "CRUD/csv"
 	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
@@ -12,12 +11,6 @@ import (
 )
 
 var tmpl = template.Must(template.ParseGlob("tmpl/*"))
-
-type Names struct {
-	Id    int    `json:"id" form:"id"`
-	Name  string `json:"name" form:"name"`
-	Email string `json:"email" form:"email"`
-}
 
 func dbConn() (db *sql.DB) {
 
@@ -29,34 +22,53 @@ func dbConn() (db *sql.DB) {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
+
+	n := Funcionario{}
+	SlcFuncionario := []Funcionario{}
+	IndxPg := IndexPage{}
+
 	db := dbConn()
-	selDB, err := db.Query("SELECT *  FROM funcionarios ")
+	resultado, err := db.Query("SELECT *  FROM funcionarios ")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	n := Names{}
-	res := []Names{}
-
-	for selDB.Next() {
+	for resultado.Next() {
 		var id int
 		var name, email string
+		var salario float64
 
-		err = selDB.Scan(&id, &name, &email)
+		err = resultado.Scan(&id, &name, &email, &salario)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.Id = id
-		n.Name = name
-		n.Email = email
+		n.id = id
+		n.name = name
+		n.email = email
+		n.salario = salario
 
-		res = append(res, n)
+		SlcFuncionario = append(SlcFuncionario, n)
+
 	}
 
-	tmpl.ExecuteTemplate(w, "Index", res)
-
+	count := len(SlcFuncionario)
+	IndxPg.funcionarios = SlcFuncionario
+	IndxPg.count = count
+	tmpl.ExecuteTemplate(w, "Index", IndxPg)
 	defer db.Close()
+}
+
+type Funcionario struct {
+	id      int
+	name    string
+	email   string
+	salario float64
+}
+
+type IndexPage struct {
+	count        int
+	funcionarios []Funcionario
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
@@ -64,25 +76,27 @@ func Show(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	selDB, err := db.Query("SELECT id, name, email FROM funcionarios WHERE id=?;", nId)
+	selDB, err := db.Query("SELECT id, name, email, salario FROM funcionarios WHERE id=?;", nId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	n := Names{}
+	n := Funcionario{}
 
 	for selDB.Next() {
 		var id int
 		var name, email string
+		var salario float64
 
-		err = selDB.Scan(&id, &name, &email)
+		err = selDB.Scan(&id, &name, &email, &salario)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.Id = id
-		n.Name = name
-		n.Email = email
+		n.id = id
+		n.name = name
+		n.email = email
+		n.salario = salario
 	}
 
 	tmpl.ExecuteTemplate(w, "Show", n)
@@ -105,21 +119,23 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 
-	n := Names{}
+	n := Funcionario{}
 
 	for selDB.Next() {
 		var id int
 		var name, email string
+		var salario float64
 
 		// Faz o Scan do SELECT
-		err = selDB.Scan(&id, &name, &email)
+		err = selDB.Scan(&id, &name, &email, &salario)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		n.Id = id
-		n.Name = name
-		n.Email = email
+		n.id = id
+		n.name = name
+		n.email = email
+		n.salario = salario
 	}
 
 	tmpl.ExecuteTemplate(w, "Edit", n)
@@ -136,15 +152,16 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 
 		name := r.FormValue("name")
 		email := r.FormValue("email")
+		salario := r.FormValue("salario")
 
-		insForm, err := db.Prepare("INSERT INTO funcionarios (name, email) VALUES(?,?)")
+		insForm, err := db.Prepare("INSERT INTO funcionarios (name, email, salario) VALUES(?,?,?)")
 		if err != nil {
 			panic(err.Error())
 		}
 
-		insForm.Exec(name, email)
+		insForm.Exec(name, email, salario)
 
-		log.Println("INSERT: Name: " + name + " | E-mail: " + email)
+		log.Println("INSERT: Name: " + name + " | E-mail: " + email + "| Salario: " + salario)
 	}
 
 	defer db.Close()
@@ -161,15 +178,16 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		email := r.FormValue("email")
 		id := r.FormValue("uid")
+		salario := r.FormValue("salario")
 
-		insForm, err := db.Prepare("UPDATE funcionarios SET name=?, email=? WHERE id=?")
+		insForm, err := db.Prepare("UPDATE funcionarios SET name=?, email=?, salario=?, WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
 
-		insForm.Exec(name, email, id)
+		insForm.Exec(name, email, id, salario)
 
-		log.Println("UPDATE: Name: " + name + " |E-mail: " + email)
+		log.Println("UPDATE: Name: " + name + " |E-mail: " + email + "|Salario:" + salario)
 	}
 
 	defer db.Close()
@@ -197,11 +215,10 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", 301)
 }
 
-type Data struct {
-	Id    int    //`json:"id" form:"id"`
-	Name  string //`json:"name" form:"name"`
-	Email string //`json:"email" form:"email"`
-}
+/*
+func Indexadd(r *IndexPage) {
+	r.count += len(listFuncionarios)
+}*/
 
 func DownCsv(w http.ResponseWriter, r *http.Request) {
 
@@ -216,22 +233,17 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 	for resultado.Next() {
 		var id int
 		var name, email string
+		var salario float64
 
-		err = resultado.Scan(&id, &name, &email)
+		err = resultado.Scan(&id, &name, &email, &salario)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		funcionario := []string{strconv.Itoa(id), name, email}
+		funcionario := []string{strconv.Itoa(id), name, email, strconv.FormatFloat(salario, 'f', 2, 64)}
 
 		list = append(list, funcionario)
-		//format := fmt.Sprintf("%v", emptySlicen)
-		//list = [][]string{{format}}
 	}
-	//for _, value := range emptySlicen {
-	//format := fmt.Sprintf("%#v\n", value)
-	//list = [][]string{{format}}
-	//	}
 
 	byteData, err := csvmanager.WriteAll(list)
 
@@ -239,46 +251,43 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 	w.Write([]byte(byteData))
-
 }
 
-type Regs struct {
-	Id int `json:"p" form:"p"`
-}
+/*
+	  func Registers(w http.ResponseWriter, r *http.Request) {
 
-func Registers(w http.ResponseWriter, r *http.Request) {
+		db := dbConn()
 
-	db := dbConn()
-
-	regs := Regs{}
-	reg := []Regs{}
-
-	rows, err := db.Query("SELECT COUNT(*)FROM funcionarios")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	var lines int
-	defer rows.Close()
-
-	for rows.Next() {
-		var id int
-		if err := rows.Scan(&lines); err != nil {
-			log.Fatal(err)
-			fmt.Printf("%s", lines)
-
-			regs.Id = id
-
-			reg = append(reg, regs)
+		rows, err := db.Query("SELECT COUNT(*)FROM funcionarios")
+		if err != nil {
+			panic(err.Error())
 		}
-		fmt.Println(lines)
-		tmpl.ExecuteTemplate(w, "Count", lines)
-	}
+		regs := Regs{}
+		reg := []Regs{}
+		var lines int
+		defer rows.Close()
+
+		for rows.Next() {
+			var registro int
+			if err := rows.Scan(&lines); err != nil {
+				log.Fatal(err)
+				fmt.Printf("%s", lines)
+
+				regs.Registers = registro
+
+				reg = append(reg, regs)
+			}
+			fmt.Println(lines)
+			tmpl.ExecuteTemplate(w, "index", regs)
+		}
+
 }
+*/
 
 func main() {
 
-	http.HandleFunc(`/lines`, Registers)
+	//var lenghList = len(listFuncionarios)
+	//http.HandleFunc(`/lines`, Registers)
 	http.HandleFunc(`/csv`, DownCsv)
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/show", Show)
