@@ -1,0 +1,38 @@
+    {{ define "Index" }}
+       {{ template "Header" }}
+          {{ template "Menu" }}
+
+<h2>Usuários cadastrados </h2>
+
+
+<div>
+    <table border="1">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nome</td>
+                <td>Email</td>
+                <td>Ação</td>
+            </tr>
+        </thead>
+
+        <tbody>
+            {{range .IndexPage}}
+            <tr key="index">
+                <td>{{.funcionarios.id}}</td>
+                <td>{{.funcionarios.name}}</td>
+                <td>{{.funcionarios.email}}</td>
+
+
+                <td> <a href="/show?id={{.Id}}">Vizualizar</a> | <a href="/edit?id={{.Id}}">Editar</a> </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    </div>
+    <br/>
+
+    <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>
+
+ {{template "Footer"}}
+ {{ end }}
