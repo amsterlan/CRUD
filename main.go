@@ -23,11 +23,10 @@ func dbConn() (db *sql.DB) {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	sliceFuncionary := []Funcionary{}
-	sliceIndexPg := []IndexPage{}
+	sliceEmployee := []Employee{}
 
 	db := dbConn()
-	result, err := db.Query("SELECT *  FROM funcionarios ")
+	result, err := db.Query("SELECT *  FROM employees ")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -42,20 +41,20 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		listFuncionary := Funcionary{id, name, email, salary}
-		sliceFuncionary = append(sliceFuncionary, listFuncionary)
+		listFuncionary := Employee{id, name, email, salary}
+		sliceEmployee = append(sliceEmployee, listFuncionary)
 
 	}
 
-	count := len(sliceFuncionary)
-	listIndexPg := IndexPage{count, sliceFuncionary}
-	sliceIndexPg = append(sliceIndexPg, listIndexPg)
-	tmpl.ExecuteTemplate(w, "Index", listIndexPg)
+	count := len(sliceEmployee)
+	listIndexPage := IndexPage{count, sliceEmployee}
+
+	tmpl.ExecuteTemplate(w, "Index", listIndexPage)
 
 	defer result.Close()
 }
 
-type Funcionary struct {
+type Employee struct {
 	id     int
 	name   string
 	email  string
@@ -64,7 +63,7 @@ type Funcionary struct {
 
 type IndexPage struct {
 	count      int
-	funcionary []Funcionary
+	funcionary []Employee
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
@@ -72,12 +71,12 @@ func Show(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	result, err := db.Query("SELECT id, name, email, salary FROM funcionarios WHERE id=?;", nId)
+	result, err := db.Query("SELECT id, name, email, salary FROM employees WHERE id=?;", nId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	listFuncionary := Funcionary{}
+	listFuncionary := Employee{}
 
 	for result.Next() {
 		var id int
@@ -110,12 +109,12 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	result, err := db.Query("SELECT * FROM funcionarios WHERE id=?", nId)
+	result, err := db.Query("SELECT * FROM employees WHERE id=?", nId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	listFuncionary := Funcionary{}
+	listEmployee := Employee{}
 
 	for result.Next() {
 		var id int
@@ -128,13 +127,13 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		listFuncionary.id = id
-		listFuncionary.name = name
-		listFuncionary.email = email
-		listFuncionary.salary = salary
+		listEmployee.id = id
+		listEmployee.name = name
+		listEmployee.email = email
+		listEmployee.salary = salary
 	}
 
-	tmpl.ExecuteTemplate(w, "Edit", listFuncionary)
+	tmpl.ExecuteTemplate(w, "Edit", listEmployee)
 
 	// Fecha a conexão com o banco de dados
 	defer db.Close()
@@ -150,7 +149,7 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		salary := r.FormValue("salary")
 
-		insForm, err := db.Prepare("INSERT INTO funcionarios (name, email, salary) VALUES(?,?,?)")
+		insForm, err := db.Prepare("INSERT INTO employees (name, email, salary) VALUES(?,?,?)")
 		if err != nil {
 			panic(err.Error())
 		}
@@ -176,7 +175,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		id := r.FormValue("uid")
 		salary := r.FormValue("salary")
 
-		insForm, err := db.Prepare("UPDATE funcionarios SET name=?, email=?, salary=?, WHERE id=?")
+		insForm, err := db.Prepare("UPDATE employees SET name=?, email=?, salary=?, WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
@@ -197,7 +196,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	nId := r.URL.Query().Get("id")
 
-	delForm, err := db.Prepare("DELETE FROM funcionarios WHERE id=?")
+	delForm, err := db.Prepare("DELETE FROM employees WHERE id=?")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -219,7 +218,7 @@ func Indexadd(r *IndexPage) {
 func DownCsv(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
-	resultado, err := db.Query("SELECT *  FROM funcionarios ")
+	resultado, err := db.Query("SELECT *  FROM employees ")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -236,9 +235,9 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		funcionary := []string{strconv.Itoa(id), name, email, strconv.FormatFloat(salary, 'f', 2, 64)}
+		employee := []string{strconv.Itoa(id), name, email, strconv.FormatFloat(salary, 'f', 2, 64)}
 
-		list = append(list, funcionary)
+		list = append(list, employee)
 	}
 
 	byteData, err := csvmanager.WriteAll(list)
@@ -281,9 +280,6 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 */
 
 func main() {
-
-	//var lenghList = len(listFuncionarios)
-	//http.HandleFunc(`/lines`, Registers)
 	http.HandleFunc(`/csv`, DownCsv)
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/show", Show)
