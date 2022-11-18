@@ -62,11 +62,12 @@ type Employee struct {
 }
 
 type IndexPage struct {
-	count      int
-	funcionary []Employee
+	count    int
+	employee []Employee
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
+	listEmployee := Employee{}
 	db := dbConn()
 
 	nId := r.URL.Query().Get("id")
@@ -75,8 +76,6 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	listFuncionary := Employee{}
 
 	for result.Next() {
 		var id int
@@ -88,13 +87,11 @@ func Show(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		listFuncionary.id = id
-		listFuncionary.name = name
-		listFuncionary.email = email
-		listFuncionary.salary = salary
+		listEmployee = Employee{id, name, email, salary}
+
 	}
 
-	tmpl.ExecuteTemplate(w, "Show", listFuncionary)
+	tmpl.ExecuteTemplate(w, "Show", listEmployee)
 
 	defer db.Close()
 
@@ -126,11 +123,8 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
+		listEmployee = Employee{id, name, email, salary}
 
-		listEmployee.id = id
-		listEmployee.name = name
-		listEmployee.email = email
-		listEmployee.salary = salary
 	}
 
 	tmpl.ExecuteTemplate(w, "Edit", listEmployee)
@@ -218,19 +212,19 @@ func Indexadd(r *IndexPage) {
 func DownCsv(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
-	resultado, err := db.Query("SELECT *  FROM employees ")
+	result, err := db.Query("SELECT *  FROM employees ")
 	if err != nil {
 		panic(err.Error())
 	}
 
 	list := [][]string{}
 
-	for resultado.Next() {
+	for result.Next() {
 		var id int
 		var name, email string
 		var salary float64
 
-		err = resultado.Scan(&id, &name, &email, &salary)
+		err = result.Scan(&id, &name, &email, &salary)
 		if err != nil {
 			panic(err.Error())
 		}
