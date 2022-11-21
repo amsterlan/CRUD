@@ -10,29 +10,35 @@
         <thead>
             <tr>
                 <td>Id</td>
-                <td>Nome</td>
+                <td>Name</td>
                 <td>Email</td>
-                <td>Ação</td>
+                 <td>Salary</td>
+
+               <td>Action</td>
             </tr>
         </thead>
 
         <tbody>
-            {{range .}}
+        <td>
+
+
             <tr key="index">
-                <td>{{.funcionarios.id}}</td>
-                <td>{{.funcionarios.name}}</td>
-                <td>{{.funcionarios.email}}</td>
+
+                <td>{{ printf "%#v" .}}</td>
+                <td>{{ index .employee 0 }}</td>
+                <td>{{ . }}</td>
+                <td>{{ . }}</td>
 
 
-                <td> <a href="/show?id={{.Id}}">Vizualizar</a> | <a href="/edit?id={{.Id}}">Editar</a> </td>
+
+                <td> <a href="/show?id={{.}}">Vizualizar</a> | <a href="/edit?id={{.}}">Editar</a> </td>
             </tr>
-            {{ end }}
+
         </tbody>
     </table>
     </div>
     <br/>
-
+ {{ end }}
     <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>
 
  {{template "Footer"}}
- {{ end }}

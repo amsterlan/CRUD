@@ -41,8 +41,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		listFuncionary := Employee{id, name, email, salary}
-		sliceEmployee = append(sliceEmployee, listFuncionary)
+		listEmployee := Employee{id, name, email, salary}
+		sliceEmployee = append(sliceEmployee, listEmployee)
 
 	}
 
@@ -70,9 +70,9 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	listEmployee := Employee{}
 	db := dbConn()
 
-	nId := r.URL.Query().Get("id")
+	getId := r.URL.Query().Get("id")
 
-	result, err := db.Query("SELECT id, name, email, salary FROM employees WHERE id=?;", nId)
+	result, err := db.Query("SELECT id, name, email, salary FROM employees WHERE id=?;", getId)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -204,11 +204,6 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", 301)
 }
 
-/*
-func Indexadd(r *IndexPage) {
-	r.count += len(listFuncionarios)
-}*/
-
 func DownCsv(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
@@ -241,37 +236,6 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write([]byte(byteData))
 }
-
-/*
-	  func Registers(w http.ResponseWriter, r *http.Request) {
-
-		db := dbConn()
-
-		rows, err := db.Query("SELECT COUNT(*)FROM funcionarios")
-		if err != nil {
-			panic(err.Error())
-		}
-		regs := Regs{}
-		reg := []Regs{}
-		var lines int
-		defer rows.Close()
-
-		for rows.Next() {
-			var registro int
-			if err := rows.Scan(&lines); err != nil {
-				log.Fatal(err)
-				fmt.Printf("%s", lines)
-
-				regs.Registers = registro
-
-				reg = append(reg, regs)
-			}
-			fmt.Println(lines)
-			tmpl.ExecuteTemplate(w, "index", regs)
-		}
-
-}
-*/
 
 func main() {
 	http.HandleFunc(`/csv`, DownCsv)
