@@ -41,8 +41,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		listEmployee := Employee{id, name, email, salary}
-		sliceEmployee = append(sliceEmployee, listEmployee)
+		registeredEmployee := Employee{id, name, email, salary}
+		sliceEmployee = append(sliceEmployee, registeredEmployee)
 
 	}
 
@@ -55,15 +55,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 type Employee struct {
-	id     int
-	name   string
-	email  string
-	salary float64
+	Id     int
+	Name   string
+	Email  string
+	Salary float64
 }
 
 type IndexPage struct {
-	count    int
-	employee []Employee
+	Count    int
+	Employee []Employee
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +111,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 
-	listEmployee := Employee{}
+	registeredEmployee := Employee{}
 
 	for result.Next() {
 		var id int
@@ -123,11 +123,11 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		listEmployee = Employee{id, name, email, salary}
+		registeredEmployee = Employee{id, name, email, salary}
 
 	}
 
-	tmpl.ExecuteTemplate(w, "Edit", listEmployee)
+	tmpl.ExecuteTemplate(w, "Edit", registeredEmployee)
 
 	// Fecha a conexão com o banco de dados
 	defer db.Close()
@@ -176,7 +176,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 		insForm.Exec(name, email, id, salary)
 
-		log.Println("UPDATE: Name: " + name + " |E-mail: " + email + "|Salario:" + salary)
+		log.Println("UPDATE: Name: " + name + " |E-mail: " + email + "|Salary:" + salary)
 	}
 
 	defer db.Close()

@@ -2,7 +2,7 @@
        {{ template "Header" }}
           {{ template "Menu" }}
 
-<h2>Usuários cadastrados </h2>
+<h2>Registered users: {{.Count}}</h2>
 
 
 <div>
@@ -13,25 +13,23 @@
                 <td>Name</td>
                 <td>Email</td>
                  <td>Salary</td>
-
                <td>Action</td>
             </tr>
         </thead>
 
         <tbody>
-        <td>
+
 
 
             <tr key="index">
 
-                <td>{{ printf "%#v" .}}</td>
-                <td>{{ index .employee 0 }}</td>
-                <td>{{ . }}</td>
-                <td>{{ . }}</td>
 
+                <td>{{range .Employee}} {{ .Id }}</br>{{end}}</td>
+                <td>{{range .Employee}} {{ .Name }}</br>{{end}}</td>
+                <td>{{range .Employee}} {{ .Email }}</br>{{end}}</td>
+                <td>{{range .Employee}} {{ .Salary }}</br>{{end}}</td>
 
-
-                <td> <a href="/show?id={{.}}">Vizualizar</a> | <a href="/edit?id={{.}}">Editar</a> </td>
+                <td> {{range .Employee}} <a href="/show?id={{.Id}}">View</a> | <a href="/edit?id={{.Id}}">Edit</a></br> {{end}} </td>
             </tr>
 
         </tbody>
