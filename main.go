@@ -67,7 +67,7 @@ type IndexPage struct {
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
-	listEmployee := Employee{}
+	registeredEmployee := Employee{}
 	db := dbConn()
 
 	getId := r.URL.Query().Get("id")
@@ -87,11 +87,11 @@ func Show(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		listEmployee = Employee{id, name, email, salary}
+		registeredEmployee = Employee{id, name, email, salary}
 
 	}
 
-	tmpl.ExecuteTemplate(w, "Show", listEmployee)
+	tmpl.ExecuteTemplate(w, "Show", registeredEmployee)
 
 	defer db.Close()
 
@@ -166,7 +166,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 		name := r.FormValue("name")
 		email := r.FormValue("email")
-		id := r.FormValue("uid")
+		id := r.FormValue("id")
 		salary := r.FormValue("salary")
 
 		insForm, err := db.Prepare("UPDATE employees SET name=?, email=?, salary=?, WHERE id=?")
