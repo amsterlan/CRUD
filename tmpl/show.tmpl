@@ -4,12 +4,13 @@
     <h2>New name and email</h2>
 
 <h2>Registers</h2>
-{{range .Employee}}
-<h2> Register {{.Id}} </h2>
-    <p> Name: {{.Name}} </p>
-    <p> Email: {{.Email}} </p>
-    <p> Salary: {{.Salary}} </p>
+
+<h2> Register {{range .Employee}}{{.Id}} {{end}}</h2>
+    <li> Name:{{range .Employee}} {{.Name}}{{end}} </li>
+    <li> Email:{{range .Employee}} {{.Email}} {{end}}</li>
+    <li> Salary:{{range .Employee}} {{.Salary}} {{end}}</li>
+
+    <br/><a href="edit?id={{range .Employee}}{{.Id}}">Edit</a></p><a href="/delete?id={{range .Employee}}{{.Id}}{{end}}">Delete</a>
     {{end}}
-    <br/><a href="edit?id={{.Id}}">Edit</a></p><a href="/delete?id={{.Id}}">Delete</a>
 {{ template "Footer" }}
 {{ end }}

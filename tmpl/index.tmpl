@@ -23,20 +23,23 @@
 
             <tr key="index">
 
+                {{range .Employee}}
+                <td> {{ .Id }} </td>
+                <td> {{ .Name }}</td>
+                <td>{{ .Email }}</td>
+                <td>{{ .Salary }}</td>
 
-                <td>{{range .Employee}} {{ .Id }}</br>{{end}}</td>
-                <td>{{range .Employee}} {{ .Name }}</br>{{end}}</td>
-                <td>{{range .Employee}} {{ .Email }}</br>{{end}}</td>
-                <td>{{range .Employee}} {{ .Salary }}</br>{{end}}</td>
+                <td>  <a href="/show?id={{.Id}}">View</a> | <a href="/edit?id={{.Id}}">Edit</a>  </td>
 
-                <td> {{range .Employee}} <a href="/show?id={{.Id}}">View</a> | <a href="/edit?id={{.Id}}">Edit</a></br> {{end}} </td>
             </tr>
 
         </tbody>
+        {{end}}
     </table>
+
     </div>
     <br/>
- {{ end }}
-    <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>
 
+    <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>
+{{ end }}
  {{template "Footer"}}
