@@ -46,8 +46,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	count := len(sliceEmployee)
-	listIndexPage := IndexPage{count, sliceEmployee}
+	listIndexPage := IndexPage{len(sliceEmployee), sliceEmployee}
 
 	tmpl.ExecuteTemplate(w, "Index", listIndexPage)
 
@@ -62,8 +61,8 @@ type Employee struct {
 }
 
 type IndexPage struct {
-	Count    int
-	Employee []Employee
+	Count     int
+	Employees []Employee
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
