@@ -2,33 +2,35 @@
        {{ template "Header" }}
           {{ template "Menu" }}
 
+<h2>Records: {{.Count}}</h2>
 
-    <h2>Usuários cadastrados ()</h2>
 
+<div>
     <table border="1">
         <thead>
             <tr>
                 <td>Id</td>
-                <td>Nome</td>
+                <td>Name</td>
                 <td>Email</td>
-                <td>Ação</td>
+                 <td>Salary</td>
+               <td>Action</td>
             </tr>
         </thead>
 
         <tbody>
-            {{range .}} for
             <tr key="index">
-                <td>{{.Id}}</td>
-                <td>{{.Name}}</td>
-                <td>{{.Email}}</td>
-                <td> <a href="/show?id={{.Id}}">Vizualizar</a> | <a href="/edit?id={{.Id}}">Editar</a> </td>
+                {{range .Employees}}
+                <td> {{ .Id }} </td>
+                <td> {{ .Name }}</td>
+                <td>{{ .Email }}</td>
+                <td>{{ .Salary }}</td>
+                <td>  <a href="/show?id={{.Id}}">View</a> | <a href="/edit?id={{.Id}}">Edit</a>  </td>
             </tr>
-            {{ end }}
         </tbody>
+        {{end}}
     </table>
-    <br/>
-
+ </div> <br/>
     <a href="/csv"  download=go.csv> DOWNLOAD CSV </a>
 
  {{template "Footer"}}
- {{ end }}
+{{ end }}
