@@ -1,16 +1,14 @@
 {{ define "Show" }}
 {{ template "Header" }}
 {{ template "Menu" }}
-    <h2>New employee</h2>
+    
+    <h2>Records</h2>
 
-<h2>Registers</h2>
-{{range .Employees}}
-<h2> Register {{.Id}} </h2>
-    <li> Name: {{.Name}} </li>
-    <li> Email: {{.Email}} </li>
-    <li> Salary: {{.Salary}} </li>
-{{end}}
-    <br/><a href="edit?id={{.Id}}">Edit</a></p><a href="/delete?id={{.Id}}">Delete</a>
+                    <h2> Record {{ .Id }} </h2>
+                        <p> Name: {{ .Name }} </p>
+                        <p> Email: {{ .Email }} </p>
+                        <p> Salary: {{ .Salary }} </p>
+                        <br/><a href="edit?id={{ .Id }}">Edit</a></p><a href="/delete?id={{ .Id }}">Delete</a>
 
-{{end}}
 {{ template "Footer" }}
+{{ end }}

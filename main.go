@@ -23,7 +23,7 @@ func dbConn() (db *sql.DB) {
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	sliceEmployee := []Employee{}
+	employees := []Employee{}
 
 	db := dbConn()
 	result, err := db.Query("SELECT *  FROM employees ")
@@ -42,11 +42,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 
 		registeredEmployee := Employee{id, name, email, salary}
-		sliceEmployee = append(sliceEmployee, registeredEmployee)
+		employees = append(employees, registeredEmployee)
 
 	}
 
-	listIndexPage := IndexPage{len(sliceEmployee), sliceEmployee}
+	listIndexPage := IndexPage{len(employees), employees}
 
 	tmpl.ExecuteTemplate(w, "Index", listIndexPage)
 
@@ -66,12 +66,12 @@ type IndexPage struct {
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
-	registeredEmployee := Employee{}
+	employee := Employee{}
 	db := dbConn()
 
 	getId := r.URL.Query().Get("id")
 
-	result, err := db.Query("SELECT id, name, email, salary FROM employees WHERE id=?;", getId)
+	result, err := db.Query("SELECT * FROM employees WHERE id=?", getId)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -86,11 +86,11 @@ func Show(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 
-		registeredEmployee = Employee{id, name, email, salary}
+		employee = Employee{id, name, email, salary}
 
 	}
 
-	tmpl.ExecuteTemplate(w, "Show", registeredEmployee)
+	tmpl.ExecuteTemplate(w, "Show", employee)
 
 	defer db.Close()
 
@@ -103,14 +103,14 @@ func New(w http.ResponseWriter, r *http.Request) {
 func Edit(w http.ResponseWriter, r *http.Request) {
 	db := dbConn()
 
-	nId := r.URL.Query().Get("id")
+	getId := r.URL.Query().Get("id")
 
-	result, err := db.Query("SELECT * FROM employees WHERE id=?", nId)
+	result, err := db.Query("SELECT * FROM employees WHERE id=?", getId)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	registeredEmployee := Employee{}
+	employee := Employee{}
 
 	for result.Next() {
 		var id int
@@ -122,13 +122,12 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err.Error())
 		}
-		registeredEmployee = Employee{id, name, email, salary}
+		employee = Employee{id, name, email, salary}
 
 	}
 
-	tmpl.ExecuteTemplate(w, "Edit", registeredEmployee)
+	tmpl.ExecuteTemplate(w, "Edit", employee)
 
-	// Fecha a conexão com o banco de dados
 	defer db.Close()
 }
 
@@ -165,15 +164,15 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 		name := r.FormValue("name")
 		email := r.FormValue("email")
-		id := r.FormValue("id")
 		salary := r.FormValue("salary")
+		id := r.FormValue("id")
 
-		insForm, err := db.Prepare("UPDATE employees SET name=?, email=?, salary=?, WHERE id=?")
+		insForm, err := db.Prepare("UPDATE employees SET name=?, email=?, salary=? WHERE id=?")
 		if err != nil {
 			panic(err.Error())
 		}
 
-		insForm.Exec(name, email, id, salary)
+		insForm.Exec(name, email, salary, id)
 
 		log.Println("UPDATE: Name: " + name + " |E-mail: " + email + "|Salary:" + salary)
 	}
@@ -187,23 +186,21 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
 
-	nId := r.URL.Query().Get("id")
+	getId := r.URL.Query().Get("id")
 
 	delForm, err := db.Prepare("DELETE FROM employees WHERE id=?")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	delForm.Exec(nId)
-
-	log.Println("DELETE")
+	delForm.Exec(getId)
 
 	defer db.Close()
 
 	http.Redirect(w, r, "/", 301)
 }
 
-func DownCsv(w http.ResponseWriter, r *http.Request) {
+func DownloadCsv(w http.ResponseWriter, r *http.Request) {
 
 	db := dbConn()
 	result, err := db.Query("SELECT *  FROM employees ")
@@ -237,7 +234,7 @@ func DownCsv(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc(`/csv`, DownCsv)
+	http.HandleFunc(`/csv`, DownloadCsv)
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/show", Show)
 	http.HandleFunc("/new", New)

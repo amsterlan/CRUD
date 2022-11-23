@@ -1,16 +1,16 @@
 {{ define "Edit" }}
 {{ template "Header" }}
 {{ template "Menu" }}
-    <h2>Edit name and email</h2>
+    <h2>Edit employee</h2>
 
-<form method="POST" action="update">
-    <input type="hidden" name="id" value="{{.Id}}" />
-    <label>Name</label><input type="text" name="name" value-"{{.Name}} /><br/>
-    <label>Email</label><input type="text" name="email" value="{{.Email}}" />
-    <label>Salary</label><input type="number" name="salary" value="{{.Salary}}" />
-    <input type="submit" value="Save user" />
-        </form>
-    <a href="/deleteId?={{.Id}}">Delete</a>
+<form  method="POST" action="update">
+    <input type="hidden" name="id" value="{{ .Id }}" />
+    <label>Name</label><input type="text" name="name" value="{{ .Name }}" /><br/>
+    <label>Email</label><input type="text" name="email" value="{{ .Email }}" /></br>
+    <label>Salary</label><input type="number" name="salary" step="any" value="{{ .Salary }}" /></br>
+    <input  type="submit" value="save user" /></br>
+</form>
+    <a href="/delete?id={{ .Id }}">Delete</a>
 {{ template "Footer" }}
 {{ end }}
 
